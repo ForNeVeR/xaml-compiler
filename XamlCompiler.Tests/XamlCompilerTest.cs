@@ -19,6 +19,8 @@ namespace XamlCompiler.Tests
             using (var stream = new MemoryStream())
             {
                 XamlServices.Transform(reader, writer);
+
+                writer.WriteAssembly(stream);
                 var bytes = stream.ToArray();
                 var assembly = Assembly.Load(bytes);
                 var type = assembly.ExportedTypes.Single(t => t.Name == "TestClass");

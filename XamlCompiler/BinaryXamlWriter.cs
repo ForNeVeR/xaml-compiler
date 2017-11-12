@@ -1,51 +1,28 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
-using Mono.Cecil;
 using Portable.Xaml;
 
 namespace XamlCompiler
 {
     public class BinaryXamlWriter : XamlWriter
     {
-        private readonly ModuleDefinition _module;
-
-        private XamlType _baseType;
-        private TypeDefinition _currentType;
+        private readonly Compiler.XamlCompiler _compiler;
 
         public BinaryXamlWriter(XamlSchemaContext context, string name, Version version)
         {
             SchemaContext = context;
-
-            var assemblyName = new AssemblyNameDefinition(name, version);
-            _module = CreateModule(assemblyName);
+            _compiler = new Compiler.XamlCompiler(name, version);
         }
 
-        public void WriteAssembly(Stream output)
-        {
-            throw new NotImplementedException();
-        }
-
-        private static ModuleDefinition CreateModule(AssemblyNameDefinition assemblyName)
-        {
-            var assembly = AssemblyDefinition.CreateAssembly(
-                assemblyName,
-                assemblyName.Name,
-                ModuleKind.Dll);
-            return assembly.MainModule;
-        }
+        public void WriteAssembly(Stream output) => _compiler.WriteAssembly(output);
 
         public override XamlSchemaContext SchemaContext { get; }
 
         public override void WriteEndMember()
         {
-            throw new NotImplementedException();
         }
 
-        public override void WriteEndObject()
-        {
-            throw new NotImplementedException();
-        }
+        public override void WriteEndObject() => _compiler.OnEndObject();
 
         public override void WriteGetObject()
         {
@@ -60,24 +37,17 @@ namespace XamlCompiler
         {
             switch (xamlMember)
             {
+                case var x when x == XamlLanguage.Base:
+                    break;
                 case var x when x == XamlLanguage.Class:
-                    Debug.Assert(_currentType == null);
-                    _currentType = new TypeDefinition("", "", TypeAttributes.Class);
+                    _compiler.OnClassAttribute();
                     break;
                 default:
                     throw new NotSupportedException($"XAML member {xamlMember} is not supported by the compiler");
             }
         }
 
-        public override void WriteStartObject(XamlType type)
-        {
-            Debug.Assert(_baseType == null);
-            _baseType = type;
-        }
-
-        public override void WriteValue(object value)
-        {
-            throw new NotImplementedException();
-        }
+        public override void WriteStartObject(XamlType type) => _compiler.OnStartObject(type);
+        public override void WriteValue(object value) => _compiler.OnAttributeValue(value);
     }
 }

@@ -9,8 +9,13 @@ namespace XamlCompiler.Compiler
 {
     internal class ObjectInfo
     {
-        public XamlType BaseType { get; set; }
+        public XamlType BaseType { get; }
         public string TypeName { get; set; }
+
+        public ObjectInfo(XamlType baseType)
+        {
+            BaseType = baseType;
+        }
 
         public void AddTypeDefinition(ModuleDefinition module)
         {

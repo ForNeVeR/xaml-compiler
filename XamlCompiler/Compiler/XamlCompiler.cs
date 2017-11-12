@@ -56,10 +56,7 @@ namespace XamlCompiler.Compiler
         public void OnAttributeValue(object value) => _stateMachine.Fire(_attributeValue, value);
         public void OnEndObject() => _stateMachine.Fire(XamlParseTrigger.ObjectEnd);
 
-        private void InitializeObject(XamlType type) => _currentObjectInfo = new ObjectInfo
-        {
-            BaseType = type
-        };
+        private void InitializeObject(XamlType type) => _currentObjectInfo = new ObjectInfo(type);
 
         private void SetAttributeValue(object value, StateMachine<State, XamlParseTrigger>.Transition transition)
         {

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Xml.XPath;
 using Mono.Cecil;
 using Portable.Xaml;
 using Stateless;
@@ -75,11 +74,6 @@ namespace XamlCompiler.Compiler
             }
         }
 
-        private void GenerateType()
-        {
-            var definition = _currentObjectInfo.CreateTypeDefinition();
-            _assembly.MainModule.Types.Add(definition);
-            _currentObjectInfo = null;
-        }
+        private void GenerateType() => _currentObjectInfo.AddTypeDefinition(_assembly.MainModule);
     }
 }

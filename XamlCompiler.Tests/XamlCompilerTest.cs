@@ -23,7 +23,7 @@ namespace XamlCompiler.Tests
                 writer.WriteAssembly(stream);
                 var bytes = stream.ToArray();
                 var assembly = Assembly.Load(bytes);
-                var type = assembly.ExportedTypes.Single(t => t.Name == "TestClass");
+                var type = assembly.ExportedTypes.Single(t => t.Name == typeName);
                 return (T) Activator.CreateInstance(type);
             }
         }

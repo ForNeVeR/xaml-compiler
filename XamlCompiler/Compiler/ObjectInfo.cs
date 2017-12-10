@@ -54,7 +54,7 @@ namespace XamlCompiler.Compiler
                 throw new NotSupportedException($"Type derived from {BaseType} has no name defined");
             }
 
-            var index = typeName.IndexOf(".", StringComparison.InvariantCulture);
+            var index = typeName.LastIndexOf(".", StringComparison.InvariantCulture);
             if (index == -1)
             {
                 return (null, typeName);

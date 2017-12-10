@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Portable.Xaml;
 
@@ -8,10 +9,14 @@ namespace XamlCompiler
     {
         private readonly Compiler.XamlCompiler _compiler;
 
-        public BinaryXamlWriter(XamlSchemaContext context, string name, Version version)
+        public BinaryXamlWriter(
+            XamlSchemaContext context,
+            string name,
+            Version version,
+            IEnumerable<string> referencedAssemblyNames)
         {
             SchemaContext = context;
-            _compiler = new Compiler.XamlCompiler(name, version);
+            _compiler = new Compiler.XamlCompiler(name, version, referencedAssemblyNames);
         }
 
         public void WriteAssembly(Stream output) => _compiler.WriteAssembly(output);

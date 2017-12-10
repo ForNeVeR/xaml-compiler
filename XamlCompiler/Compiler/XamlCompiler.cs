@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Mono.Cecil;
 using Portable.Xaml;
@@ -10,18 +11,20 @@ namespace XamlCompiler.Compiler
     {
         private readonly AssemblyDefinition _assembly;
         private readonly StateMachine<State, XamlParseTrigger> _stateMachine;
+        private readonly XamlTypeResolver _xamlTypeResolver;
 
         private readonly StateMachine<State, XamlParseTrigger>.TriggerWithParameters<XamlType> _objectStart;
         private readonly StateMachine<State, XamlParseTrigger>.TriggerWithParameters<object> _attributeValue;
 
         private ObjectInfo _currentObjectInfo;
 
-        public XamlCompiler(string assemblyName, Version assemblyVersion)
+        public XamlCompiler(string assemblyName, Version assemblyVersion, IEnumerable<string> referencedAssemblyPaths)
         {
             _assembly = AssemblyDefinition.CreateAssembly(
                 new AssemblyNameDefinition(assemblyName, assemblyVersion),
                 assemblyName,
                 ModuleKind.Dll);
+            _xamlTypeResolver = XamlTypeResolver.FromAssemblies(referencedAssemblyPaths);
 
             _stateMachine = new StateMachine<State, XamlParseTrigger>(State.Init);
             _objectStart = _stateMachine.SetTriggerParameters<XamlType>(XamlParseTrigger.ObjectStart);
@@ -56,7 +59,12 @@ namespace XamlCompiler.Compiler
         public void OnAttributeValue(object value) => _stateMachine.Fire(_attributeValue, value);
         public void OnEndObject() => _stateMachine.Fire(XamlParseTrigger.ObjectEnd);
 
-        private void InitializeObject(XamlType type) => _currentObjectInfo = new ObjectInfo(type);
+        private TypeReference ResolveType(XamlType type) =>
+            type.UnderlyingType != null
+                ? _assembly.MainModule.ImportReference(type.UnderlyingType)
+                : _xamlTypeResolver.Resolve(type.PreferredXamlNamespace, type.Name);
+
+        private void InitializeObject(XamlType type) => _currentObjectInfo = new ObjectInfo(ResolveType(type));
 
         private void SetAttributeValue(object value, StateMachine<State, XamlParseTrigger>.Transition transition)
         {

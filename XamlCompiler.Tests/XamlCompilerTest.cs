@@ -12,10 +12,12 @@ namespace XamlCompiler.Tests
     {
         private static T ActivateInstanceFromXaml<T>(string xaml, string typeName)
         {
-            var context = new XamlSchemaContext(new[] {typeof(Window).Assembly});
+            var referencedAssembly = typeof(T).Assembly;
+            var path = new[] {new Uri(referencedAssembly.CodeBase).LocalPath};
+            var context = new XamlSchemaContext();
             using (var xamlReader = new StringReader(xaml))
             using (var reader = new XamlXmlReader(xamlReader, context))
-            using (var writer = new BinaryXamlWriter(context, "test", new Version()))
+            using (var writer = new BinaryXamlWriter(context, "test", new Version(), path))
             using (var stream = new MemoryStream())
             {
                 XamlServices.Transform(reader, writer);

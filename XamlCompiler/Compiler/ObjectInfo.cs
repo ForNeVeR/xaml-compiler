@@ -9,18 +9,17 @@ namespace XamlCompiler.Compiler
 {
     internal class ObjectInfo
     {
-        public XamlType BaseType { get; }
+        public TypeReference BaseType { get; }
         public string TypeName { get; set; }
 
-        public ObjectInfo(XamlType baseType)
+        public ObjectInfo(TypeReference baseType)
         {
             BaseType = baseType;
         }
 
         public void AddTypeDefinition(ModuleDefinition module)
         {
-            var baseType = BaseType.UnderlyingType;
-            var baseTypeReference = module.ImportReference(baseType);
+            var baseTypeReference = module.ImportReference(BaseType);
 
             var (@namespace, type) = ParseTypeName(TypeName);
             const TypeAttributes attributes = TypeAttributes.Public | TypeAttributes.Class;
